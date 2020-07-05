@@ -3,21 +3,20 @@
     "main.css": "./static/css/main.7006b252.chunk.css",
     "main.js": "./static/js/main.c5da37fd.chunk.js",
     "runtime-main.js": "./static/js/runtime-main.8270e87e.js",
-    "static/css/2.e20f4116.chunk.css": "./static/css/2.e20f4116.chunk.css",
+    "static/css/2.42461638.chunk.css": "./static/css/2.42461638.chunk.css",
     "static/js/2.b6b80d83.chunk.js": "./static/js/2.b6b80d83.chunk.js",
     "static/css/3.df5a9ec0.chunk.css": "./static/css/3.df5a9ec0.chunk.css",
     "static/js/3.214d7cec.chunk.js": "./static/js/3.214d7cec.chunk.js",
     "static/js/4.738513ea.chunk.js": "./static/js/4.738513ea.chunk.js",
     "index.html": "./index.html",
-    "precache-manifest.3211a57f7825203930fff06349901e0c.js": "./precache-manifest.3211a57f7825203930fff06349901e0c.js",
+    "precache-manifest.fed247b527437820d9247f7bc7837210.js": "./precache-manifest.fed247b527437820d9247f7bc7837210.js",
     "service-worker.js": "./service-worker.js",
     "static/js/2.b6b80d83.chunk.js.LICENSE.txt": "./static/js/2.b6b80d83.chunk.js.LICENSE.txt",
-    "static/media/001.png": "./static/media/001.99269280.png",
-    "static/media/index.less": "./static/media/rsuite-icon-font.fdd39796.ttf"
+    "static/media/001.png": "./static/media/001.99269280.png"
   },
   "entrypoints": [
     "static/js/runtime-main.8270e87e.js",
-    "static/css/2.e20f4116.chunk.css",
+    "static/css/2.42461638.chunk.css",
     "static/js/2.b6b80d83.chunk.js",
     "static/css/main.7006b252.chunk.css",
     "static/js/main.c5da37fd.chunk.js"
