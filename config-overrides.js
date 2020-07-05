@@ -49,6 +49,7 @@ module.exports = override(
         '@component': 'src/component',
         '@resource': 'src/resource',
         '@common': 'src/common',
+        '@config': 'src/config',
         '@router': 'src/router',
         '@listener': 'src/listener',
         '@fetch': 'src/fetch'

@@ -19,6 +19,9 @@
       "@common/*": [
         "./src/common/*"
       ],
+      "@config/*": [
+        "./src/config/*"
+      ],
       "@router": [
         "./src/router"
       ],

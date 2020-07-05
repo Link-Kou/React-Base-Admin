@@ -17,6 +17,7 @@ export default class Listener {
     }
 
     /**
+     * Tab标签信息
      * NavTabClosed Tab关闭
      */
     public static NavTabClosed: string = 'NavTabClosed'

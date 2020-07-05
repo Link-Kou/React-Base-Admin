@@ -1,10 +1,10 @@
 import * as React from 'react';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {Icon, Popover, Whisper, Dropdown, IconButton, Avatar, Badge} from 'rsuite';
+import {Avatar, Badge, Dropdown, Icon, IconButton, Popover, Whisper} from 'rsuite';
 import {RouterHistory, Routes} from '@router';
 import Listener from '@listener';
 import './tabs.scss'
 import {utilsStorage} from '@utils/index';
+import {ReactSortable} from 'react-sortablejs';
 
 interface IState {
     activeKey: string
@@ -23,7 +23,7 @@ interface IState {
         /**
          * 标题
          */
-        content?: string
+        name?: string
         /**
          * 搜索条件
          */
@@ -36,18 +36,18 @@ interface IState {
     }>
 }
 
+export const TabsComponent = React.forwardRef<HTMLDivElement, any>((props, ref) => {
+    return <div ref={ref} className={'header-tabs-base'}>{props.children}</div>;
+});
+
+
 export default class HeadTabs extends React.Component<any, IState> {
 
     public _deviceNavMenuSidenav: any
 
     public _deviceEmitNavTabClosed: any
 
-    public wrapper: any;
-
-    public wrapperheader: any;
-
-
-    constructor(props: any, context: any, initialization: () => void) {
+    constructor(props: any, context: any) {
         super(props, context);
         this.state = {
             activeKey: '',
@@ -78,7 +78,7 @@ export default class HeadTabs extends React.Component<any, IState> {
                         filter.push({
                             id: k.key,
                             path: listener.pathname,
-                            content: k.title,
+                            name: k.title,
                             closedHideTab: k.closedHideTab
                         })
                         this.setState({items: filter, selectItems: k.key}, () => {
@@ -108,7 +108,7 @@ export default class HeadTabs extends React.Component<any, IState> {
                 const newroute = {
                     id: find.key,
                     path: find.path,
-                    content: find.title,
+                    name: find.title,
                     closedHideTab: find.closedHideTab
                 }
                 parse.push(newroute)
@@ -182,72 +182,17 @@ export default class HeadTabs extends React.Component<any, IState> {
         })
     }
 
-
-    /**
-     * 拖动
-     * @param result
-     */
-    public onDragEnd(result: any) {
-        // dropped outside the list
-        if (!result.destination) {
-            return;
-        }
-        const reorder = (list: Array<any>, startIndex: number, endIndex: number) => {
-            const fromarray: any = Array.from(list);
-            const [removed] = fromarray.splice(startIndex, 1);
-            fromarray.splice(endIndex, 0, removed);
-            return fromarray;
-        };
-        const items = reorder(
-            this.state.items,
-            //来源index
-            result.source.index,
-            //放置index
-            result.destination.index
-        );
-
-        this.setState({
-            items
-        });
-    }
-
-    /**
-     * 拖动base样式
-     * @param isDraggingOver
-     */
-    public getListStyle(isDraggingOver: boolean) {
-        return (
-            {
-                background: isDraggingOver ? '#fafafa' : '#fff',
-                display: 'flex',
-                padding: '0 6px 0 0'
-            }
-        )
-    }
-
-    /**
-     * 拖动样式
-     * @param isDragging
-     * @param draggableStyle
-     */
-    public getItemStyle(isDragging: boolean, draggableStyle: any) {
-        return (
-            {
-                boxShadow: isDragging ? '5px 5px 10px #888888' : '',
-                borderRadius: isDragging ? '4px' : '4px 4px 0 0',
-                ...draggableStyle
-            }
-        )
-    }
-
     /**
      * 滚动条 进行滚动到指定元素
      * @param classname
      * @param id
      */
     public onWheel(classname: string, id: string, callbackWheelEnd?: () => void) {
-        const anchorElement: any = document.getElementsByClassName(classname)[0];
-        anchorElement?.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
+        const anchorElement: any = document.getElementsByClassName(classname);
+        if (Array.isArray(anchorElement)) {
+            anchorElement?.[0]?.scrollIntoView({block: 'start', inline: 'center', behavior: 'smooth'});
+        }
+        //rs-dropdown-item-active
         this.setState({
             selectItems: id
         }, () => {
@@ -293,12 +238,11 @@ export default class HeadTabs extends React.Component<any, IState> {
 
     }
 
+
     public render() {
         const {selectItems, items} = this.state
         return (
-            <div className='header-tabs' ref={ref => {
-                this.wrapper = ref;
-            }} onContextMenu={(event: any) => {
+            <div className='header-tabs' onContextMenu={(event: any) => {
                 event.preventDefault()
                 return false
             }}>
@@ -314,48 +258,42 @@ export default class HeadTabs extends React.Component<any, IState> {
                                     }}/>
                     </div>
                     <div style={{display: 'flex', width: 'calc(100% - 162px)'}}>
-                        <DragDropContext onDragEnd={this.onDragEnd.bind(this)}>
-                            <Droppable droppableId="droppable" direction="horizontal">
-                                {(provided, snapshot) => (
+                        <ReactSortable
+                            tag={TabsComponent}
+                            list={items}
+                            group={{
+                                name: 'tab'
+                            }}
+                            animation={500}
+                            delay={1}
+                            swapThreshold={0.68}
+                            invertedSwapThreshold={0.68}
+                            emptyInsertThreshold={20}
+                            fallbackOnBody={true}
+                            invertSwap={true}
+                            setList={((newState, sortable, store) => {
+                                if (sortable && store?.dragging) {
+                                    this.setState({
+                                        items: newState
+                                    })
+                                }
+                            })}
+                        >
+                            {items.map((item, index) => (
+                                <div
+                                    className={`header-tabs-tabitem header-tabs-tabitem${item.id} ${selectItems === item.id ? 'header-tabs-tabitem-select' : ''}`}
+                                    role="button"
+                                >
                                     <div
-                                        className={`header-tabs-base`}
-                                        ref={ref => {
-                                            provided.innerRef(ref);
-                                            this.wrapperheader = ref
-                                        }}
-                                        style={this.getListStyle(snapshot.isDraggingOver)}
-                                        {...provided.droppableProps}
-                                    >
-                                        {items.map((item, index) => (
-                                            <Draggable key={item.id} draggableId={item.id} index={index}>
-                                                {(provideds, snapshots) => (
-                                                    <div
-                                                        className={`header-tabs-tabitem header-tabs-tabitem${item.id} ${selectItems === item.id ? 'header-tabs-tabitem-select' : ''}`}
-                                                        role="button"
-                                                        ref={provideds.innerRef}
-                                                        {...provideds.draggableProps}
-                                                        {...provideds.dragHandleProps}
-                                                        style={this.getItemStyle(
-                                                            snapshots.isDragging,
-                                                            provideds.draggableProps.style
-                                                        )}
-                                                    >
-                                                        <div
-                                                            className={`header-tabs-tabitem-content header-tabs-tabitem-content${item.id}`}
-                                                            onClick={() => {
-                                                                RouterHistory.push(item.path)
-                                                            }}>{item.content}</div>
-                                                        <Icon className={'app-close'} icon={'warning'}
-                                                              onClick={() => this._close(item.id)}/>
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </DragDropContext>
+                                        className={`header-tabs-tabitem-content header-tabs-tabitem-content${item.id}`}
+                                        onClick={() => {
+                                            RouterHistory.push(item.path)
+                                        }}>{item.name}</div>
+                                    <Icon className={'app-close'} icon={'warning'}
+                                          onClick={() => this._close(item.id)}/>
+                                </div>
+                            ))}
+                        </ReactSortable>
                     </div>
                     <div style={{display: 'flex'}}>
                         <IconButton appearance="subtle" icon={<Icon icon="arrow-right"/>}
@@ -381,7 +319,7 @@ export default class HeadTabs extends React.Component<any, IState> {
                                             items.map((k, i, a) => (
                                                 <>
                                                     {i === 0 ? <Dropdown.Item divider={true}/> : undefined}
-                                                    <Dropdown.Item>{k.content}</Dropdown.Item>
+                                                    <Dropdown.Item>{k.name}</Dropdown.Item>
                                                 </>
                                             ))
                                         }

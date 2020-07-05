@@ -1,12 +1,9 @@
 import * as React from 'react';
-import {Dropdown, Icon, Nav, Sidenav} from 'rsuite';
-import {
-    MenuConfig, IMenuConfig, MenuOpenKeysConfig, INavItem, IDropdown, IDropdownMenu, IDropdownItem
-} from '../../../../config/MenuConfigComponent'
-import './menu.scss'
 import {RouterHistory} from '@router';
 import Listener from '@listener';
-//import {MenuConfig, IMenuConfig, MenuOpenKeysConfig} from '../../../../config/MenuConfig'
+import {MenuConfig, MenuOpenKeysConfig} from '@config/MenuConfigComponent'
+import './menu.scss'
+import {Menus} from './menu';
 
 /**
  * 菜单收缩展开尺寸
@@ -46,13 +43,24 @@ export default class Index extends React.Component {
      */
     private _listen = () => {
         const routerHistory = RouterHistory;
+        const wheel = () => {
+            //菜单栏滚动条导航
+            const activeElement: any = document.querySelectorAll('.rs-nav-item-active,.rs-dropdown-item-active');
+            activeElement?.forEach((k: any, i: any, a: any) => {
+                k?.scrollIntoView({block: 'end', inline: 'start', behavior: 'smooth'});
+            })
+        }
         this.setState({
             selectMenuKey: routerHistory?.location?.pathname
+        }, () => {
+            wheel()
         })
         //路由跳转监听
         routerHistory.listen((listener) => {
             this.setState({
                 selectMenuKey: listener.pathname
+            }, () => {
+                wheel()
             })
         })
     }
@@ -68,106 +76,6 @@ export default class Index extends React.Component {
         })
     }
 
-    /**
-     * 拥有权限的菜单
-     * @param key 表示
-     * @param comp 组件
-     */
-    private menuAuth(key: string, comp: any): any {
-        return comp
-    }
-
-    /**
-     * 菜单递归
-     * @param item
-     */
-    private menu(item: Array<any>): any {
-        /**
-         * Icons 渲染
-         * @param ico
-         */
-        const icons = (ico: any) => {
-            return typeof ico === 'string' ? <Icon icon={ico as any}/> : ico
-        }
-
-        /**
-         * 渲染子项目
-         * @param items
-         */
-        const renderItems = (items: Array<IDropdownMenu | IDropdownItem>) => {
-            return items.map((k, i, a) => {
-                switch (k.type) {
-                    case 'DropdownMenu':
-                        if (items.length > 0) {
-                            //icon={<Icon icon={String(k.ico)}/>}
-                            return this.menuAuth(
-                                k.key,
-                                <Dropdown.Menu icon={icons(k.ico)} eventKey={k.key} title={k.title()}>
-                                    {renderItems(k.items)}
-                                </Dropdown.Menu>
-                            )
-                        }
-                        break;
-                    case 'DropdownItem':
-                        return this.menuAuth(
-                            k.key,
-                            <Dropdown.Item className={'app-dropdown-Item-text'} eventKey={k.route} icon={icons(k.ico)}
-                                           onClick={() => {
-                                               RouterHistory.push(k.route)
-                                           }}>
-                                <span>{k.content}</span>
-                            </Dropdown.Item>
-                        )
-                    default:
-                        return null;
-                }
-            })
-        }
-
-        return item.map((k: IMenuConfig, i: number, a: Array<any>) => {
-            const {type, ico} = k.type as INavItem | IDropdown
-            const {route, content} = k.type as INavItem
-            const {items, title} = k.type as IDropdown
-            switch (type) {
-                case 'Dropdown':
-                    if (items?.length > 0) {
-                        return this.menuAuth(
-                            k.key,
-                            <Dropdown placement="rightStart" eventKey={k.key}
-                                      icon={icons(ico)}
-                                      title={title()}>
-                                {renderItems(items)}
-                            </Dropdown>
-                        )
-                    }
-                    break;
-                case 'DropdownMenu':
-                    if (items.length > 0) {
-                        return this.menuAuth(
-                            k.key,
-                            <Dropdown.Menu icon={icons(ico)} eventKey={k.key} title={title()}>
-                                {renderItems(items)}
-                            </Dropdown.Menu>
-                        )
-                    }
-                    break;
-                case 'NavItem':
-                    return this.menuAuth(
-                        k.key,
-                        <Nav.Item className={'app-dropdown-Item-text'} eventKey={route} icon={icons(ico)}
-                                  onClick={() => {
-                                      RouterHistory.push(route)
-                                  }}>
-                            <span>{content}</span>
-                        </Nav.Item>
-                    )
-                default:
-                    return null
-            }
-        });
-
-    }
-
     public render() {
         const {collapsedOverflow, selectOpenKeys, selectMenuKey, collapsed} = this.state
         return (
@@ -179,20 +87,10 @@ export default class Index extends React.Component {
                      } : {overflow: collapsedOverflow, width: shrinkWidth}
                  }
             >
-                <Sidenav className={'app-Sidenav'}
-                         defaultOpenKeys={selectOpenKeys}
-                         activeKey={selectMenuKey}
-                         appearance="inverse"
-                         expanded={!this.state.collapsed}
-                >
-                    <Sidenav.Body>
-                        <Nav pullRight={true}>
-                            {
-                                this.menu(this.state.Menu)
-                            }
-                        </Nav>
-                    </Sidenav.Body>
-                </Sidenav>
+                <Menus selectOpenKeys={selectOpenKeys}
+                       selectMenuKey={selectMenuKey}
+                       collapsed={!this.state.collapsed}
+                       item={this.state.Menu}/>
             </div>
         )
     }

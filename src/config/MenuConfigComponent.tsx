@@ -184,7 +184,7 @@ export const MenuConfig: Array<IMenuConfig> = [
                                     type: 'DropdownItem',
                                     content: '菜单2',
                                     ico: 'order-form',
-                                    route: '/404'
+                                    route: '/index/codeView'
                                 }
                             ]
                         }
@@ -195,7 +195,7 @@ export const MenuConfig: Array<IMenuConfig> = [
                     type: 'DropdownItem',
                     content: '菜单4',
                     ico: 'order-form',
-                    route: '/404'
+                    route: '/index/codeView'
                 }
             ]
         }
@@ -222,12 +222,12 @@ export const MenuConfig: Array<IMenuConfig> = [
             /**
              * 内容
              */
-            content: '菜单2',
+            content: '首页',
             /**
              * 图标
              */
             ico: 'cube',
-            route: '/404'
+            route: '/index/main'
         }
     }
 ]
